@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'url'
     ];
 
     /**
@@ -36,11 +36,27 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    //evento cuando un usuario es creado
+    protected static function boot()
+    {
+        parent::boot();
+        //asingar perfil una vez creado el usuario
+        static::created(function ($user) {
+
+            $user->perfil()->create();
+        });
+    }
+
 
     /**Relacion de 1:n */
 
     public function recetas()
     {
         return $this->hasMany(Receta::class);
+    }
+    //relaion 1  a 1 de usuario y perfil
+    public function perfil()
+    {
+        return $this->hasOne(Perfil::class);
     }
 }

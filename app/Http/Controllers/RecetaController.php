@@ -71,8 +71,6 @@ class RecetaController extends Controller
         ]);
         //ruta
         $ruta_imagen = $request['imagen']->store('upload-recetas', 'public');
-
-
         //rize de la imagen
 
         $img = Image::make(public_path("storage/{$ruta_imagen}"))->fit(1200, 550);
@@ -85,7 +83,6 @@ class RecetaController extends Controller
             'preparacion' => $data['preparacion'],
             'ingredientes' => $data['ingredientes'],
             'imagen' => $ruta_imagen,
-
             'categoria_id' => $data['categoria'],
         ]);
 
