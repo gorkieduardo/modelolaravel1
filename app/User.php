@@ -3,10 +3,13 @@
 namespace App;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+
+//TODO: MustVerifyEmail es para que los usuarios confirmen su email
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
 
@@ -58,5 +61,11 @@ class User extends Authenticatable
     public function perfil()
     {
         return $this->hasOne(Perfil::class);
+    }
+
+    //recetas a la que el usuariole ha dado me gusta
+    public function meGusta()
+    {
+        return $this->belongsToMany(Receta::class, 'likes_receta');
     }
 }

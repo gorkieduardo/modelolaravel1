@@ -29,14 +29,9 @@
             @php
                 $fecha = $receta->created_at
             @endphp
-            <fecha-receta fecha="{{$fecha}}"></fecha-receta>
-            
-         
-           		
+            <fecha-receta fecha="{{$fecha}}"></fecha-receta>    		
         </p>
         
- 
-
     <div class="ingredientes">
         <h2 class="my-3 text-primary">Ingredientes</h2>
         {!! $receta->ingredientes !!}
@@ -46,6 +41,12 @@
         <h2 class="my-3 text-primary">Preparacion</h2>
         {!! $receta->preparacion !!}
     </div>
+
+    <like-button
+        receta-id="{{$receta->id}}"
+    >
+        
+    </like-button>
 </article>
 </div>
 @endsection

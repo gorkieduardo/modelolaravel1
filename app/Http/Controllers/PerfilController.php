@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Perfil;
+use App\Receta;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
-
 
 class PerfilController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => 'show']);
+    }
 
     /**
      * Display the specified resource.
@@ -19,7 +23,12 @@ class PerfilController extends Controller
      */
     public function show(Perfil $perfil)
     {
-        return view('perfiles.show', compact('perfil'));
+
+        // Obtener las recetas con paginación
+        $recetas = Receta::where('user_id', $perfil->user_id)->paginate(3);
+
+        //
+        return view('perfiles.show', compact('perfil', 'recetas'));
     }
 
     /**
@@ -30,6 +39,9 @@ class PerfilController extends Controller
      */
     public function edit(Perfil $perfil)
     {
+        // Ejecutar el Policy
+        $this->authorize('view', $perfil);
+        //
         return view('perfiles.edit', compact('perfil'));
     }
 
@@ -42,53 +54,48 @@ class PerfilController extends Controller
      */
     public function update(Request $request, Perfil $perfil)
     {
+        // Ejecutar el Policy
+        $this->authorize('update', $perfil);
 
-
-        //validar 
+        // Validar
         $data = request()->validate([
             'nombre' => 'required',
             'url' => 'required',
             'biografia' => 'required'
         ]);
-        //si el usuario sube imagen
-        if ($request['imagen']) {
 
+        // Si el usuario sube una imagen
+        if ($request['imagen']) {
+            // obtener la ruta de la imagen
             $ruta_imagen = $request['imagen']->store('upload-perfiles', 'public');
-            //rize de la imagen
-            $img = Image::make(public_path("storage/{$ruta_imagen}"))->fit(500, 500);
+
+            // Resize de la imagen
+            $img = Image::make(public_path("storage/{$ruta_imagen}"))->fit(600, 600);
             $img->save();
 
-            //crear un arreglo de imagen
+            // Crear un arreglo de imagen
             $array_imagen = ['imagen' => $ruta_imagen];
         }
-        //asignar nombre y url
 
+        // Asignar nombre y URL
         auth()->user()->url = $data['url'];
         auth()->user()->name = $data['nombre'];
         auth()->user()->save();
 
-        //guardar informacion
-
+        // Eliminar url y name de $data
         unset($data['url']);
         unset($data['nombre']);
 
 
+        // Guardar información
+        // Asignar Biografia e imagen
         auth()->user()->perfil()->update(array_merge(
             $data,
             $array_imagen ?? []
         ));
-        //redireccionar
-        return redirect()->action('RecetaConntroller@index');
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Perfil  $perfil
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Perfil $perfil)
-    {
-        //
+
+        // redireccionar
+        return redirect()->action('RecetaController@index');
     }
 }

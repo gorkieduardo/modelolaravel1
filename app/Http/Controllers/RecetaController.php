@@ -9,11 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 
-
 class RecetaController extends Controller
 {
-
-
     public function __construct()
     {
         $this->middleware('auth', ['except' => 'show']);
@@ -25,10 +22,14 @@ class RecetaController extends Controller
      */
     public function index()
     {
+        $usuario = auth()->user();
 
-        // Auth::user()->recetas->dd();, aunque también se puede auth()->user()->recetas->dd()
-        $recetas = auth()->user()->recetas;
-        return view('recetas.index')->with('recetas', $recetas);
+        // Recetas con paginación
+        $recetas = Receta::where('user_id', $usuario->id)->paginate(3);
+
+        return view('recetas.index')
+            ->with('recetas', $recetas)
+            ->with('usuario', $usuario);
     }
 
     /**
@@ -37,7 +38,6 @@ class RecetaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-
     {
         //DB::table('categoria_receta')->get()->pluck('nombre', 'id')->dd();
         //obtener la categoria sin modelo
@@ -98,11 +98,14 @@ class RecetaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Receta $receta)
-
-
     {
+        // Obtener si el usuario actual le gusta la receta y esta autenticado
+        $like = (auth()->user()) ?  auth()->user()->meGusta->contains($receta->id) : false;
 
-        return view('recetas.show', compact('receta'));
+        // Pasa la cantidad de likes a la vista
+        $likes = $receta->likes->count();
+
+        return view('recetas.show', compact('receta', 'like', 'likes'));
     }
 
     /**
@@ -113,6 +116,7 @@ class RecetaController extends Controller
      */
     public function edit(Receta $receta)
     {
+        $this->authorize('view', $receta);
         $categorias = CategoriaReceta::all(['id', 'nombre']);
         return view('recetas.edit', compact('categorias', 'receta'));
     }
@@ -127,10 +131,7 @@ class RecetaController extends Controller
     public function update(Request $request, Receta $receta)
 
     //revisar el plice
-
-
     {
-
         $this->authorize('update', $receta);
 
         $data = request()->validate([
