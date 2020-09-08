@@ -30,7 +30,7 @@ Route::resource('recetas', 'RecetaController');
 Route::get('/categoria/{categoriaReceta}', 'CategoriasController@show')->name('categorias.show');
 
 // Buscador de Recetas
-//Route::get('/buscar', 'RecetaController@search')->name('buscar.show');
+Route::get('/buscar', 'RecetaController@search')->name('buscar.show');
 
 
 //rutas de perfiles
