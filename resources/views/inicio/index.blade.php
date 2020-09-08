@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
-@section('styles')
 
+
+@section('styles')
+ {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" integrity="sha256-UhQQ4fxEeABh4JrcmAJ1+16id/1dnlOEVCFOxDef9Lw=" crossorigin="anonymous" /> --}}
 
 @endsection
 
@@ -36,4 +38,49 @@
         </div>
 
    </div>
+
+   @foreach($recetas as $key => $grupo )
+   <div class="container">
+       <h2 class="titulo-categoria text-uppercase mt-5 mb-4"> {{ str_replace('-', ' ',  $key) }} </h2>
+       
+       <div class="row">
+           @foreach($grupo as $recetas)
+               @foreach($recetas as $receta)
+                  <div class="col-md-4 mt-4">
+                      <div class="card shadow">
+                      <img class="card-img-top" src="/storage/{{ $receta->imagen}}" alt="imagen receta" >
+                    <div class="card-body">
+                    <h3 class="card-title">{{$receta->titulo}}</h3> 
+                    
+                    <div class="meta-receta d-flex justify-content-between">
+
+                        @php
+                            $fecha = $receta->created_at
+                        @endphp
+
+                        <p class="text-primary fecha font-weight-bold">
+                        <fecha-receta fecha="{{$fecha}}"></fecha-receta>
+                        </p>
+                      {{--   <p class="card-text">
+                            {{ Str::words( strip_tags($nueva->preparacion), 10)}}
+
+                        </p> --}}
+                    <a href="{{ route('recetas.show', ['receta'=>$receta->id])}}" 
+                        class="btn-danger">Ver receta
+                    
+                    </a>
+                 
+                    </div>
+                    </div>  
+                    
+                    </div>
+
+                  </div>
+               @endforeach
+           @endforeach
+       </div>
+   </div>
+
+@endforeach
+
 @endsection
